@@ -777,48 +777,47 @@ function sort() {
 
   let cleaninput = input.replace(/[\n\r]/g, ""); /* Gets rid of jumplines */
 
-  let allRules = cleaninput.split("}"); /*Separates all Rules of code */
+  let rulescount = cleaninput.split("}"); /*Separates all Rules of code */
 
   /*Each section is divided in functions that format each thing, and a compiler to add the code back together at the end. */
 
-  let allTogether = [];
+  let allRules = [];
 
-  for (let i = 0; i < allRules.length; i++) {
-    const eachRule = allRules[i];
+  for (let i = 0; i < rulescount.length; i++) {
+    const eachRule = rulescount[i];
 
     let divided = eachRule.trim().split("{");
     if (divided.toString().trim() !== "") {
       let declarations = divided[1].trim().split(";");
       let selector = divided[0].trim();
 
-      let thisrule = [selector, []];
+      let thisRule = [selector, []];
 
       for (let j = 0; j < declarations.length; j++) {
         const eachProp = declarations[j];
         if (eachProp.trim() !== "") {
           const property = eachProp.split(":")[0].trim();
           const value = eachProp.split(":")[1].trim();
-          thisrule[1].push([property, value]);
+          thisRule[1].push([property, value]);
         }
       }
-      allTogether.push(thisrule);
+      allRules.push(thisRule);
     }
   }
-
-  console.log(allTogether);
 
   function result() {
     let formatedtext = "";
 
-    allTogether.forEach((rule) => {
+    allRules.forEach((rule) => {
       let selector = rule[0];
       let declarations = rule[1];
 
       formatedtext += selector + " {\n";
 
-      function declarationSorter(declarations) {
-        let sorted = [];
 
+      function declarationSorter(declarations, order) {
+        let sorted = [];
+      
         switch (order) {
           case "alpha":
             sorted = declarations.sort();
@@ -840,16 +839,20 @@ function sort() {
                 return myorder.indexOf(first) - myorder.indexOf(second);
               }
             });
-
+      
             break;
           case "lengthdesc":
             sorted = declarations.sort(function (a, b) {
-              return b[0].length - a[0].length;
+              let alength = a[0].length + a[1].length;
+              let blength = b[0].length + b[1].length;
+              return blength - alength;
             });
             break;
           case "lengthasc":
             sorted = declarations.sort(function (a, b) {
-              return a[0].length - b[0].length;
+              let alength = a[0].length + a[1].length;
+              let blength = b[0].length + b[1].length;
+              return alength - blength;
             });
             break;
           default:
@@ -857,7 +860,8 @@ function sort() {
             break;
         }
       }
-      declarationSorter(declarations);
+
+      declarationSorter(declarations, order);
 
       declarations.forEach((declaration) => {
         let property = declaration[0];
@@ -872,7 +876,8 @@ function sort() {
     return formatedtext;
   }
 
-  console.log(result());
+  //console.log(result());
 
   output.value = result();
 }
+
